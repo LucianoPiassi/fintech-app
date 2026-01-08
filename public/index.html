@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinTech v7.0 (PostgreSQL + Máscaras)</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="brand"><i class="fa-solid fa-vault"></i> Fin<span>Tech</span></div>
+            
+            <div class="user-widget" id="userWidget">
+                <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
+                <div class="user-info"><span id="displayUsername">...</span><small>Perfil</small></div>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-btn active" onclick="switchTab('dashboard')">
+                    <i class="fa-solid fa-table-columns"></i> Visão Geral
+                </button>
+                <button class="nav-btn" onclick="switchTab('reports')">
+                    <i class="fa-solid fa-chart-pie"></i> Relatórios
+                </button>
+            </nav>
+
+            <div class="section-title">MINHAS CONTAS</div>
+            <div id="accountsList" class="accounts-list"></div>
+            
+            <div class="add-account-wrapper">
+                <button id="toggleAccBtn" class="btn-outline"><i class="fa-solid fa-plus"></i> Nova Conta</button>
+                <form id="accountForm" class="hidden-form">
+                    <input type="text" id="accName" placeholder="Nome" required>
+                    <input type="text" id="accBalance" class="currency-input" placeholder="R$ 0,00">
+                    <button type="submit" class="btn-sm">Salvar</button>
+                </form>
+            </div>
+            
+            <button id="logoutBtn" class="btn-outline danger-hover" style="margin-top: auto;">
+                <i class="fa-solid fa-right-from-bracket"></i> Sair
+            </button>
+        </aside>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="greeting"><h2>Controle Financeiro</h2></div>
+                <div class="total-balance-card"><span>Patrimônio</span><h1 id="globalBalanceDisplay">R$ 0,00</h1></div>
+            </header>
+
+            <div id="dashboardView" class="view-section">
+                <div class="dashboard-grid">
+                    
+                    <section class="card input-section">
+                        <div class="card-header"><h3><i class="fa-solid fa-money-bill-transfer"></i> Novo Lançamento</h3></div>
+                        <form id="transactionForm">
+                            <div class="form-grid">
+                                <div class="input-group"><label>Data</label><input type="date" id="date" required></div>
+                                <div class="input-group"><label>Conta</label><select id="accountSelect" required></select></div>
+                            </div>
+                            <div class="form-grid">
+                                <div class="input-group"><label>Descrição</label><input type="text" id="desc" placeholder="Ex: Padaria" required></div>
+                                <div class="input-group"><label>Tipo</label><select id="type"><option value="EXPENSE">Saída (-)</option><option value="INCOME">Entrada (+)</option></select></div>
+                            </div>
+                            <div class="form-grid">
+                                <div class="input-group">
+                                    <label>Categoria <small style="cursor:pointer; color:#3b82f6" id="openCatModal">(Gerenciar)</small></label>
+                                    <select id="category" required></select>
+                                </div>
+                                <div class="input-group">
+                                    <label>Valor (R$)</label>
+                                    <input type="text" id="amount" class="currency-input" placeholder="R$ 0,00" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-primary">Registrar</button>
+                        </form>
+                    </section>
+                    
+                    <section class="card history-section">
+                        <div class="card-header">
+                            <h3><i class="fa-solid fa-list-ul"></i> Extrato</h3>
+                        </div>
+                        
+                        <div class="filter-bar">
+                            <div class="date-select-group">
+                                <select id="filterMonthSelect" class="filter-input"></select>
+                                <select id="filterYearSelect" class="filter-input"></select>
+                            </div>
+
+                            <select id="filterCategory" class="filter-input">
+                                <option value="Todas">Todas Categorias</option>
+                            </select>
+                            <button onclick="loadDashboard()" class="btn-sm"><i class="fa-solid fa-filter"></i> Filtrar</button>
+                        </div>
+
+                        <ul id="transactionList" class="transaction-list"></ul>
+                    </section>
+                </div>
+            </div>
+
+            <div id="reportsView" class="view-section" style="display: none;">
+                <div class="charts-grid">
+                    <div class="card chart-card">
+                        <div class="card-header"><h3>Despesas por Categoria</h3></div>
+                        <div class="canvas-container"><canvas id="categoryChart"></canvas></div>
+                    </div>
+                    <div class="card chart-card">
+                        <div class="card-header"><h3>Fluxo Mensal</h3></div>
+                        <div class="canvas-container"><canvas id="monthlyChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="catModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header"><h3>Gerenciar Categorias</h3><button id="closeCatModal" class="close-btn">&times;</button></div>
+            <div class="cat-manager">
+                <form id="newCatForm" class="row-form">
+                    <input type="text" id="newCatName" placeholder="Nova Categoria..." required>
+                    <select id="newCatType"><option value="EXPENSE">Despesa</option><option value="INCOME">Receita</option></select>
+                    <button type="submit" class="btn-sm">+</button>
+                </form>
+                <ul id="catListDisplay" class="simple-list"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="profileModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header"><h3>Perfil</h3><button id="closeProfileModal" class="close-btn">&times;</button></div>
+            
+            <form id="profileForm">
+                <div class="input-group">
+                    <label>Nome de Usuário</label>
+                    <input type="text" id="editUsername" required>
+                </div>
+                <div class="input-group">
+                    <label>Nova Senha (opcional)</label>
+                    <input type="password" id="editPassword" placeholder="******">
+                </div>
+                <button type="submit" class="btn-primary" style="margin-top:10px; width:100%">Salvar Alterações</button>
+            </form>
+
+            <div class="danger-zone">
+                <h4>Zona de Perigo</h4>
+                <button id="deleteAccountBtn" class="btn-danger">Excluir Conta</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

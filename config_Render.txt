@@ -1,0 +1,17 @@
+https://dashboard.render.com/d/dpg-d5fvrrfpm1nc73do3j60-a
+Hostname
+dpg-d5fvrrfpm1nc73do3j60-a
+port
+5432
+database
+fintech_bbgb
+username
+admin
+password
+6zOntLSMvte8hfQhdTFHVpX31f6R8idZ
+Internal Database URL
+postgresql://admin:6zOntLSMvte8hfQhdTFHVpX31f6R8idZ@dpg-d5fvrrfpm1nc73do3j60-a/fintech_bbgb
+External Database URL
+postgresql://admin:6zOntLSMvte8hfQhdTFHVpX31f6R8idZ@dpg-d5fvrrfpm1nc73do3j60-a.ohio-postgres.render.com/fintech_bbgb
+PSQL Command
+PGPASSWORD=6zOntLSMvte8hfQhdTFHVpX31f6R8idZ psql -h dpg-d5fvrrfpm1nc73do3j60-a.ohio-postgres.render.com -U admin fintech_bbgb
